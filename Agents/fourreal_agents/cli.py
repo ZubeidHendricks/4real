@@ -42,6 +42,10 @@ def _build_settings(args: argparse.Namespace) -> Settings:
         overrides["mcp_command"] = args.mcp_command
     if args.effort:
         overrides["effort"] = args.effort
+    if args.verify:
+        overrides["verify"] = True
+    if args.no_context_editing:
+        overrides["context_editing"] = False
     return dataclasses.replace(base, **overrides)
 
 
@@ -96,6 +100,8 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--url", help="MCP endpoint URL (http transport)")
     parser.add_argument("--mcp-command", dest="mcp_command", help="MCP server command (stdio transport)")
     parser.add_argument("--effort", choices=["low", "medium", "high", "xhigh", "max"], help="Reasoning effort")
+    parser.add_argument("--verify", action="store_true", help="Fresh-context verification after each step (one gap-driven retry)")
+    parser.add_argument("--no-context-editing", action="store_true", help="Disable server-side stale-tool-result clearing")
     args = parser.parse_args(argv)
 
     if args.list_agents:

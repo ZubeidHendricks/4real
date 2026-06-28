@@ -74,11 +74,11 @@ Environment variables (all optional):
 | Var | Default | Meaning |
 |---|---|---|
 | `ANTHROPIC_API_KEY` | — | Required to actually run agents |
-| `4REAL_MODEL` | `claude-opus-4-8` | Model for specialists |
-| `4REAL_EFFORT` | `high` | Reasoning effort (`low`…`max`) |
-| `4REAL_MCP_TRANSPORT` | `mock` | `mock` \| `http` \| `stdio` |
-| `4REAL_MCP_URL` | `http://127.0.0.1:30010/mcp` | http endpoint |
-| `4REAL_MCP_COMMAND` | — | stdio server command |
+| `FOURREAL_MODEL` | `claude-opus-4-8` | Model for specialists |
+| `FOURREAL_EFFORT` | `high` | Reasoning effort (`low`…`max`) |
+| `FOURREAL_MCP_TRANSPORT` | `mock` | `mock` \| `http` \| `stdio` |
+| `FOURREAL_MCP_URL` | `http://127.0.0.1:30010/mcp` | http endpoint |
+| `FOURREAL_MCP_COMMAND` | — | stdio server command |
 
 ## Design notes
 
@@ -88,3 +88,33 @@ Environment variables (all optional):
   its edits group into a single undo step.
 - **Planner uses structured output** (`output_config.format`) so the orchestrator's plan
   is a validated list of `(specialist, task)` steps, run in dependency order.
+
+## Fighting context rot
+
+A long tool-calling loop bloats and degrades a model's working set. The fleet defends on
+several fronts so agents stay sharp across big jobs:
+
+1. **No giant shared transcript.** Each specialist runs in its *own* fresh conversation;
+   the orchestrator never accumulates one ever-growing context.
+2. **Compact handoffs, not replays.** Continuity between steps is a short digest pulled
+   from the shared memory file — not the previous specialists' full transcripts.
+3. **Persistent scratchpad** (`memory_note` / `memory_recall`, backed by a markdown file
+   under `.4real_memory/`). Agents offload findings instead of carrying them in-context,
+   and recall them on demand. The file is human-readable — inspect what the fleet "knows".
+4. **Server-side context editing** (`clear_tool_uses_20250919`) clears stale tool results
+   from the model's view once a run gets long. The console prints how many tokens it pruned.
+5. **Tool-result capping** so one chatty tool can't flood the transcript.
+6. **Prompt caching** of the stable system+tools prefix, so loop iterations don't re-pay
+   for it even as old results are cleared.
+7. **`--verify`**: an optional fresh-context verifier checks each step with read-only tools
+   and triggers one gap-driven retry — a clean context catches what self-critique misses.
+
+Toggle: `--no-context-editing`, `--verify`, or the `FOURREAL_*` env vars.
+
+## Plugin-side companion tool
+
+The plugin ships a read-only `scene_audit` MCP tool
+(`Source/ForReal/Private/Tools/SceneAuditTools.cpp`) that returns actor/class counts,
+static-mesh & light totals, Nanite vs non-Nanite, and missing-material flags as JSON —
+exactly the kind of cheap, structured snapshot the Level Builder and Profiler agents use
+to ground themselves without spending context on exploration.

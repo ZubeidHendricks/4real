@@ -1,8 +1,15 @@
 """The lead orchestrator — 4real's director.
 
-Takes a high-level natural-language goal, plans which specialists should do what (in
-order — editor state is shared and serial), then dispatches each step to its
-specialist agent and synthesizes a final report.
+Turns a high-level goal into ordered (specialist, task) steps, dispatches each to its
+specialist, and synthesizes a final report.
+
+Anti-context-rot architecture:
+  * Each specialist runs in its OWN fresh conversation — the orchestrator never grows
+    one giant shared transcript.
+  * Continuity between steps is carried by a COMPACT handoff digest pulled from the
+    shared memory scratchpad, not by replaying prior transcripts.
+  * Long-lived state lives in the memory file; agents recall it on demand.
+  * Optional fresh-context verification after each step, with one gap-driven retry.
 """
 
 from __future__ import annotations
@@ -16,7 +23,9 @@ import anthropic
 from .agent import SpecialistAgent
 from .config import Settings
 from .mcp_client import ToolHub
+from .memory import RunMemory, memory_tools
 from .roster import ROSTER, ROSTER_BY_KEY
+from .verifier import verify_step
 
 
 _PLAN_SCHEMA: dict[str, Any] = {
@@ -27,10 +36,7 @@ _PLAN_SCHEMA: dict[str, Any] = {
             "items": {
                 "type": "object",
                 "properties": {
-                    "specialist": {
-                        "type": "string",
-                        "enum": [s.key for s in ROSTER],
-                    },
+                    "specialist": {"type": "string", "enum": [s.key for s in ROSTER]},
                     "task": {
                         "type": "string",
                         "description": "Self-contained instruction for that specialist.",
@@ -50,6 +56,11 @@ _PLAN_SCHEMA: dict[str, Any] = {
 class PlanStep:
     specialist: str
     task: str
+
+
+def _slug(text: str, n: int = 40) -> str:
+    out = "".join(c if c.isalnum() or c in " -_" else "" for c in text).strip()
+    return ("-".join(out.lower().split()))[:n] or "run"
 
 
 class Orchestrator:
@@ -89,6 +100,9 @@ class Orchestrator:
 
     async def run(self, goal: str) -> str:
         print(f"\n4real ▸ planning: {goal}\n")
+        memory = RunMemory(namespace=_slug(goal))
+        memory.note("goal", goal, author="director")
+
         steps = await self.plan(goal)
         if not steps:
             return "No actionable steps were produced for that goal."
@@ -101,13 +115,52 @@ class Orchestrator:
         for i, step in enumerate(steps, 1):
             spec = ROSTER_BY_KEY[step.specialist]
             print(f"\n── step {i}: {spec.label} ──")
-            agent = SpecialistAgent(spec, self.hub, self.settings, self.client)
-            res = await agent.run(step.task)
-            transcripts.append(f"### {spec.label}\n{res.final_text}")
+            res = await self._run_step(spec, step.task, memory)
+            transcripts.append(f"### {spec.label}\n{res}")
 
-        return await self._synthesize(goal, transcripts)
+        return await self._synthesize(goal, transcripts, memory)
 
-    async def _synthesize(self, goal: str, transcripts: list[str]) -> str:
+    async def _run_step(self, spec: Any, task: str, memory: RunMemory) -> str:
+        # Compact handoff: prior decisions, not prior transcripts.
+        digest = memory.digest()
+        framed = task
+        if digest:
+            framed = (
+                f"{task}\n\n--- context so far (from the shared memory; "
+                f"recall more with memory_recall) ---\n{digest}"
+            )
+
+        agent = SpecialistAgent(
+            spec,
+            self.hub,
+            self.settings,
+            self.client,
+            local_tools=memory_tools(memory, author=spec.key),
+        )
+        res = await agent.run(framed)
+        if res.cleared_tokens:
+            print(f"  (context editing pruned {res.cleared_tokens} stale tokens)")
+        memory.note(f"{spec.key}/done", res.final_text[:280], author=spec.key)
+
+        if not self.settings.verify:
+            return res.final_text
+
+        print(f"  ✓ verifying {spec.label}…")
+        verdict = await verify_step(task, res.final_text, self.hub, self.settings, self.client)
+        if verdict.satisfied:
+            print(f"  ✓ verified: {verdict.summary}")
+            return res.final_text
+
+        gaps = "; ".join(verdict.gaps) or verdict.summary
+        print(f"  ✗ gaps: {gaps} — retrying once")
+        memory.note(f"{spec.key}/gaps", gaps, author="verifier")
+        retry = await agent.run(
+            f"Your previous attempt left gaps. Original task:\n{task}\n\n"
+            f"Gaps to fix now:\n{gaps}"
+        )
+        return f"{res.final_text}\n(after fixing: {retry.final_text})"
+
+    async def _synthesize(self, goal: str, transcripts: list[str], memory: RunMemory) -> str:
         joined = "\n\n".join(transcripts)
         response = await self.client.messages.create(
             model=self.settings.router_model,
@@ -119,10 +172,8 @@ class Orchestrator:
             ),
             thinking={"type": "adaptive"},
             messages=[
-                {
-                    "role": "user",
-                    "content": f"Goal: {goal}\n\nSpecialist reports:\n{joined}",
-                }
+                {"role": "user", "content": f"Goal: {goal}\n\nSpecialist reports:\n{joined}"}
             ],
         )
-        return "".join(b.text for b in response.content if b.type == "text").strip()
+        report = "".join(b.text for b in response.content if b.type == "text").strip()
+        return f"{report}\n\nMemory: {memory.path}"

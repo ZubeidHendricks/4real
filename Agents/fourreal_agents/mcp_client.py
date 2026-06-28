@@ -201,7 +201,7 @@ class MCPToolHub(ToolHub):
 
             parts = shlex.split(self._command)
             if not parts:
-                raise RuntimeError("stdio transport needs 4REAL_MCP_COMMAND / --mcp-command")
+                raise RuntimeError("stdio transport needs FOURREAL_MCP_COMMAND / --mcp-command")
             params = StdioServerParameters(command=parts[0], args=parts[1:])
             read, write = await self._stack.enter_async_context(stdio_client(params))
         else:  # pragma: no cover - guarded by caller
