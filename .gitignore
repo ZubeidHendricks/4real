@@ -10,7 +10,8 @@ vibe_ue.log
 .cursorignore
 /.cursor/
 /.github/*
-!/.github/FUNDING.yml
+!/.github/workflows
+!/.github/workflows/**
 /CLAUDE.md
 Claude/*
 
