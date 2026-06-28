@@ -4,13 +4,12 @@
 
 ### 🧩 MCP Expansion + AI Editor Toolset for Unreal Engine 5.8+
 
-https://4real.dev/
+**[zubeidhendricks.github.io/4real](https://zubeidhendricks.github.io/4real/)**
 
+[![Website](https://img.shields.io/badge/Website-4real-ff5e5b)](https://zubeidhendricks.github.io/4real/)
 [![Unreal Engine](https://img.shields.io/badge/Unreal%20Engine-5.8%2B-orange)](https://www.unrealengine.com)
 [![MCP](https://img.shields.io/badge/MCP-Model%20Context%20Protocol-blue)](https://modelcontextprotocol.io)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
-[![Discord](https://img.shields.io/badge/Discord-Join-5865F2?logo=discord&logoColor=white)](https://discord.gg/hZs73ST59a)
-[![Donate](https://img.shields.io/badge/Donate-4real.dev-ff5e5b?logo=githubsponsors&logoColor=white)](https://4real.dev/donate)
 
 </div>
 
@@ -285,4 +284,4 @@ additional editor tools. The original copyright is retained in [LICENSE](LICENSE
 
 ## License
 
-MIT — see [LICENSE](LICENSE). Project home: https://4real.dev/
+MIT — see [LICENSE](LICENSE). Project home: https://zubeidhendricks.github.io/4real/

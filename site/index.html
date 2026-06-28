@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>4real — AI agents that build your Unreal Engine game</title>
+<meta name="description" content="4real is an MCP expansion and AI editor toolset for Unreal Engine 5.8+, with its own fleet of Claude-powered agents that drive the editor from a natural-language goal." />
+<meta property="og:title" content="4real — AI agents for Unreal Engine" />
+<meta property="og:description" content="An MCP expansion for Unreal Engine 5.8+ that ships its own multi-agent fleet — Claude Opus 4.8 specialists that turn a goal into editor actions." />
+<meta property="og:type" content="website" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎮</text></svg>" />
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#11151f; --panel2:#161b27; --line:#222a3a;
+    --text:#e6e9f0; --muted:#9aa4b8; --accent:#ff5e5b; --accent2:#5b8cff; --ok:#3ddc97;
+    --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:var(--sans);line-height:1.6;
+    background-image:radial-gradient(1200px 600px at 70% -10%,rgba(91,140,255,.12),transparent),
+      radial-gradient(900px 500px at 0% 0%,rgba(255,94,91,.10),transparent);}
+  a{color:var(--accent2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1040px;margin:0 auto;padding:0 22px}
+  header{padding:22px 0;display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .brand{font-weight:800;font-size:22px;letter-spacing:.3px}
+  .brand b{color:var(--accent)}
+  nav a{color:var(--muted);margin-left:20px;font-size:14px}
+  nav a:hover{color:var(--text);text-decoration:none}
+  .hero{padding:64px 0 40px}
+  .tag{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent2);
+    border:1px solid var(--line);border-radius:999px;padding:5px 12px;background:var(--panel)}
+  h1{font-size:clamp(34px,6vw,58px);line-height:1.05;margin:18px 0 10px;letter-spacing:-1px}
+  h1 .grad{background:linear-gradient(90deg,var(--accent),var(--accent2));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .lede{font-size:clamp(17px,2.4vw,21px);color:var(--muted);max-width:720px}
+  .cta{margin-top:28px;display:flex;flex-wrap:wrap;gap:12px}
+  .btn{display:inline-block;padding:12px 20px;border-radius:10px;font-weight:600;font-size:15px;border:1px solid var(--line)}
+  .btn.primary{background:var(--accent);color:#1a0606;border-color:var(--accent)}
+  .btn.primary:hover{filter:brightness(1.08);text-decoration:none}
+  .btn.ghost{background:var(--panel);color:var(--text)}
+  .btn.ghost:hover{background:var(--panel2);text-decoration:none}
+  section{padding:46px 0;border-top:1px solid var(--line)}
+  h2{font-size:clamp(24px,3.4vw,32px);margin:0 0 6px;letter-spacing:-.5px}
+  .sub{color:var(--muted);margin:0 0 26px;max-width:760px}
+  .flow{font-family:var(--mono);font-size:13px;color:var(--muted);background:var(--panel);
+    border:1px solid var(--line);border-radius:12px;padding:16px;overflow:auto;white-space:pre}
+  .grid{display:grid;gap:14px}
+  .g2{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  .g4{grid-template-columns:repeat(4,1fr)}
+  @media(max-width:820px){.g3,.g4{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:560px){.g2,.g3,.g4{grid-template-columns:1fr}}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:18px}
+  .card h3{margin:0 0 6px;font-size:16px}
+  .card p{margin:0;color:var(--muted);font-size:14px}
+  .agent .role{font-family:var(--mono);font-size:11px;color:var(--accent2)}
+  pre{background:#0a0d14;border:1px solid var(--line);border-radius:12px;padding:18px;overflow:auto;
+    font-family:var(--mono);font-size:13.5px;color:#cdd6e6;margin:0}
+  pre .c{color:#5f6b85}
+  pre .k{color:var(--accent)}
+  .pill{display:inline-block;font-size:12px;color:var(--ok);border:1px solid #1f4536;background:#0e1a16;
+    border-radius:999px;padding:3px 10px;margin:0 6px 6px 0}
+  ul.rot{margin:0;padding-left:20px;color:var(--muted)}
+  ul.rot li{margin:7px 0}
+  ul.rot b{color:var(--text)}
+  footer{padding:40px 0 60px;color:var(--muted);font-size:14px}
+  .note{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="brand"><b>4</b>real</div>
+    <nav>
+      <a href="#agents">Agents</a>
+      <a href="#features">Features</a>
+      <a href="#install">Install</a>
+      <a href="https://github.com/ZubeidHendricks/4real">GitHub</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <span class="tag">MCP Expansion · AI Editor Toolset · Unreal Engine 5.8+</span>
+    <h1>AI agents that <span class="grad">build your game</span> in&nbsp;Unreal.</h1>
+    <p class="lede">4real plugs into Unreal 5.8's native MCP server and adds a deep editor toolset —
+      terrain, UMG, Niagara, animation, materials, profiling — <b>plus its own fleet of Claude
+      Opus 4.8 agents</b> that turn a natural-language goal into real editor actions.</p>
+    <div class="cta">
+      <a class="btn primary" href="#install">Get started</a>
+      <a class="btn ghost" href="https://github.com/ZubeidHendricks/4real">View on GitHub →</a>
+    </div>
+  </div>
+
+  <section id="agents">
+    <h2>🤖 4real's own AI agents</h2>
+    <p class="sub">Most MCP toolkits are hands without a brain — they wait for an external IDE agent to
+      drive them. 4real brings its own. A lead orchestrator plans your goal into ordered steps and
+      dispatches each to a domain specialist, all over MCP.</p>
+    <div class="flow">  you ──goal──▶ Orchestrator ──plans──▶ [ Specialist ]──tool calls──▶ MCP ──▶ Unreal editor
+                (Opus 4.8)              (Opus 4.8 ×N)                  (4real plugin)</div>
+    <div class="grid g4" style="margin-top:18px">
+      <div class="card agent"><div class="role">terrain-architect</div><h3>Terrain Architect</h3><p>Landscapes, heightmaps, foliage, real-world/GPS terrain, PCG, map blockout.</p></div>
+      <div class="card agent"><div class="role">ui-builder</div><h3>UI Builder</h3><p>UMG widgets and MVVM view-model bindings.</p></div>
+      <div class="card agent"><div class="role">fx-artist</div><h3>FX &amp; Audio Artist</h3><p>Niagara (incl. HLSL scratch pads), MetaSound, SoundCue.</p></div>
+      <div class="card agent"><div class="role">animator</div><h3>Animator</h3><p>AnimSequence keyframes, AnimBP state machines, montages, skeletons.</p></div>
+      <div class="card agent"><div class="role">blueprint-engineer</div><h3>Blueprint Engineer</h3><p>Graphs, enums/structs, data tables, gameplay tags, input, State Trees.</p></div>
+      <div class="card agent"><div class="role">material-artist</div><h3>Material Artist</h3><p>Materials, material graphs, landscape materials, UV mapping.</p></div>
+      <div class="card agent"><div class="role">profiler</div><h3>Performance Profiler</h3><p>Frame timing, CPU/GPU-bound diagnosis, Insights traces, PIE.</p></div>
+      <div class="card agent"><div class="role">level-builder</div><h3>Level Builder</h3><p>Level actors, transforms, viewport, asset discovery.</p></div>
+    </div>
+  </section>
+
+  <section id="rot">
+    <h2>🧠 Built to resist context rot</h2>
+    <p class="sub">A long tool-calling loop normally bloats and degrades a model's working set. The fleet
+      stays sharp across big jobs with layered defenses:</p>
+    <ul class="rot">
+      <li><b>No giant shared transcript</b> — each specialist runs in its own fresh conversation.</li>
+      <li><b>Persistent scratchpad</b> — agents <code>memory_note</code> / <code>memory_recall</code> findings instead of carrying them in-context.</li>
+      <li><b>Compact handoffs</b> — steps pass a short digest of decisions, not full transcripts.</li>
+      <li><b>Server-side context editing</b> prunes stale tool results once a run gets long.</li>
+      <li><b>Tool-result capping</b> + <b>prompt caching</b> of the stable system/tools prefix.</li>
+      <li><b>Fresh-context verifier</b> (<code>--verify</code>) re-checks each step and retries gaps.</li>
+    </ul>
+  </section>
+
+  <section id="features">
+    <h2>✨ What the plugin adds</h2>
+    <p class="sub">4real complements Unreal 5.8's native toolsets — focusing on the depth the engine
+      doesn't cover — and registers into the engine's own ToolsetRegistry, MCP server, and AgentSkill system.</p>
+    <div class="grid g3">
+      <div class="card"><h3>Terrain &amp; world</h3><p>Landscape sculpting, splines, auto-materials + RVT, foliage, FPS map blockout, real-world terrain from GPS.</p></div>
+      <div class="card"><h3>FX, audio &amp; anim</h3><p>Niagara with HLSL scratch pads, MetaSound &amp; SoundCue graphs, AnimSequence/Montage/AnimBP, skeleton editing.</p></div>
+      <div class="card"><h3>UI &amp; Blueprints</h3><p>UMG + MVVM, higher-order Blueprint authoring — timelines, dispatchers, delegates, batch graph builder.</p></div>
+      <div class="card"><h3>⚡ Performance &amp; profiling</h3><p>Frame timing with a CPU-vs-GPU-bound verdict, Unreal Insights trace capture, trace+log analysis.</p></div>
+      <div class="card"><h3>Scene audit</h3><p>Read-only <code>scene_audit</code> — actor/class counts, mesh &amp; light totals, Nanite split, missing materials, as JSON.</p></div>
+      <div class="card"><h3>Editor safety</h3><p>Transaction service wraps undo/redo so an agent can group and roll back its own edits.</p></div>
+    </div>
+  </section>
+
+  <section id="install">
+    <h2>🚀 Get started</h2>
+    <p class="sub">Drive the fleet from the CLI. <code>--list-agents</code> needs no API key or Unreal;
+      a full run needs an Anthropic API key, and a live editor needs the plugin built into a UE 5.8+ project.</p>
+    <div class="grid g2">
+      <div>
+        <p class="note"><b>Run the agents</b></p>
+        <pre><span class="c"># clone &amp; install the agent runtime</span>
+git clone https://github.com/ZubeidHendricks/4real
+cd 4real/Agents &amp;&amp; pip install -r requirements.txt
+export <span class="k">ANTHROPIC_API_KEY</span>=sk-ant-...
+
+<span class="c"># turn a goal into editor actions</span>
+python -m fourreal_agents \
+  "Block out a foggy forest arena and add a HUD health bar"
+
+<span class="c"># or one specialist directly</span>
+python -m fourreal_agents --agent profiler \
+  "Are we CPU- or GPU-bound this frame?"
+
+<span class="c"># inspect the fleet — no key, no Unreal needed</span>
+python -m fourreal_agents --list-agents</pre>
+      </div>
+      <div>
+        <p class="note"><b>Connect a live editor</b></p>
+        <pre><span class="c"># 1. enable Unreal's native MCP (Edit ▸ Plugins)</span>
+<span class="c">#    Unreal MCP + Editor Tools, then start the server</span>
+
+<span class="c"># 2. drop 4real into your project</span>
+cd YourProject/Plugins
+git clone https://github.com/ZubeidHendricks/4real ForReal
+
+<span class="c"># 3. point the fleet at the editor's MCP endpoint</span>
+python -m fourreal_agents \
+  --transport http --url http://127.0.0.1:8000/mcp \
+  "Audit the level and tell me where the tris are"</pre>
+        <p class="note" style="margin-top:14px">Agents discover the editor's real tools via MCP
+          <code>list_tools</code> and filter them per specialist automatically.</p>
+      </div>
+    </div>
+    <div style="margin-top:20px">
+      <span class="pill">Unreal Engine 5.8+</span>
+      <span class="pill">Claude Opus 4.8</span>
+      <span class="pill">Model Context Protocol</span>
+      <span class="pill">MIT licensed</span>
+    </div>
+  </section>
+
+  <footer>
+    <p><b style="color:var(--accent)">4</b><b>real</b> — AI-powered Unreal Engine development.
+      <a href="https://github.com/ZubeidHendricks/4real">Source &amp; docs on GitHub</a>.</p>
+    <p>A fork of <a href="https://github.com/kevinpbuckley/VibeUE">VibeUE</a> (MIT) by Kevin Buckley,
+      extended with its own multi-agent runtime and tooling. MIT licensed.</p>
+  </footer>
+
+</div>
+</body>
+</html>
