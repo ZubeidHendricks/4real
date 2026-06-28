@@ -278,9 +278,8 @@ engine. The authoritative, always-current references are:
 
 ## Credits
 
-4real is a fork of **[VibeUE](https://github.com/kevinpbuckley/VibeUE)** by Kevin Buckley /
-Buckley Builds LLC (MIT), extended with its own multi-agent runtime, context-rot hardening, and
-additional editor tools. The original copyright is retained in [LICENSE](LICENSE).
+4real builds on prior MIT-licensed work, extended with its own multi-agent runtime, context-rot
+hardening, and additional editor tools. The original copyright is retained in [LICENSE](LICENSE).
 
 ## License
 

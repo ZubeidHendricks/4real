@@ -4,7 +4,7 @@
 	"VersionName": "5.0",
 	"EngineVersion": "5.8.0",
 	"FriendlyName": "4real",
-	"Description": "MCP Expansion and AI Editor Toolset for Unreal Engine 5.8 — extends Unreal's native MCP server, ToolsetRegistry, and AgentSkill systems with deep editor automation. Based on VibeUE (MIT).",
+	"Description": "MCP Expansion and AI Editor Toolset for Unreal Engine 5.8 — extends Unreal's native MCP server, ToolsetRegistry, and AgentSkill systems with deep editor automation.",
 	"Category": "Editor",
 	"CreatedBy": "4real",
 	"CreatedByURL": "https://zubeidhendricks.github.io/4real/",

@@ -2,7 +2,7 @@
 
 **Our own AI agents** for driving the Unreal Engine editor.
 
-VibeUE (and most MCP editor toolkits) rely on an *external* agent — Claude Code, Cursor,
+Most MCP editor toolkits rely on an *external* agent — Claude Code, Cursor,
 Copilot — to be the brain. **4real ships its own.** This package is a multi-agent
 runtime: a roster of Unreal-domain specialists powered by **Claude Opus 4.8**, each
 wired to the 4real MCP tool surface, coordinated by a lead orchestrator that turns a
