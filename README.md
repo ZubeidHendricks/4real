@@ -25,8 +25,7 @@ your editor through Unreal's standard MCP endpoint — **or 4real's own AI agent
 > 🤖 **4real ships its own AI agents.** Unlike toolkits that depend on an external IDE agent, 4real
 > includes a multi-agent fleet — a roster of Unreal-domain specialists powered by Claude Opus 4.8,
 > coordinated by a lead orchestrator — that turns a natural-language goal into editor actions over MCP.
-> See **[`Agents/`](Agents/README.md)**. It runs in mock mode on any machine (no Unreal needed) and
-> against a live editor once the plugin is built.
+> See [**🤖 4real's own AI agents**](#-4reals-own-ai-agents) below and [`Agents/`](Agents/README.md).
 
 > ⚠️ **4real requires Unreal's native MCP to be set up first** — enable the **Unreal MCP** plugin
 > (which auto-enables **Toolset Registry**) and the **Editor Tools** plugin, then start the MCP server.
@@ -54,11 +53,60 @@ Unreal 5.8 ships its own AI toolsets (Blueprints, materials, actors, assets, mes
 - **Editor safety** — `TransactionService` wraps the editor's transaction buffer (undo / redo /
   checkpoints) so an agent can group and roll back its own edits — the engine's toolsets expose none.
 - **⚡ Performance & profiling** — 4real's standout: see the dedicated section below.
+- **Scene audit** — a read-only `scene_audit` tool returns actor/class counts, static-mesh & light
+  totals, Nanite vs non-Nanite, and missing-material flags as JSON — a cheap, structured snapshot agents
+  use to ground themselves without spending context exploring the level.
 - **Python-first access** — run any `unreal.*` Python in the editor and introspect the whole API.
 - **Web research** — search / fetch / geocode for in-context research and terrain workflows.
 
 It deliberately **does not duplicate** the engine's general tools (basic asset/actor/blueprint/material
 CRUD, screenshots, logs, PIE) — agents use Unreal's native toolsets for those.
+
+---
+
+## 🤖 4real's own AI agents
+
+Most MCP editor toolkits are *hands without a brain* — they wait for an external agent (Claude Code,
+Cursor, …) to drive them. **4real brings its own brain.** [`Agents/`](Agents/README.md) is a
+multi-agent runtime: a roster of Unreal-domain specialists on **Claude Opus 4.8**, each wired to the
+slice of the MCP tool surface it needs, coordinated by a lead orchestrator that turns a
+natural-language goal into ordered editor actions.
+
+```
+  you ──goal──▶ Orchestrator ──plans──▶ [ Specialist ]──tool calls──▶ MCP ──▶ Unreal editor
+                (Opus 4.8)              (Opus 4.8 ×N)                  (4real plugin)
+```
+
+| Specialist | Does |
+|---|---|
+| Terrain Architect | Landscapes, heightmaps, foliage, real-world/GPS terrain, PCG, map blockout |
+| UI Builder | UMG widgets + MVVM view-model bindings |
+| FX & Audio Artist | Niagara (incl. HLSL scratch pads), MetaSound, SoundCue |
+| Animator | AnimSequence keyframes, AnimBP state machines, montages, skeletons |
+| Blueprint Engineer | Blueprint graphs, enums/structs, data tables/assets, gameplay tags, input, State Trees |
+| Material Artist | Materials, material graphs, landscape materials, UV mapping |
+| Performance Profiler | Frame timing, CPU/GPU-bound diagnosis, Insights traces, PIE testing |
+| Level Builder | Level actors, transforms, viewport, asset discovery/management |
+
+```bash
+cd Agents && pip install -r requirements.txt
+export ANTHROPIC_API_KEY=sk-ant-...
+
+python -m fourreal_agents "Block out a foggy forest arena and add a HUD health bar"
+python -m fourreal_agents --agent profiler "Are we CPU- or GPU-bound this frame?"
+python -m fourreal_agents --list-agents          # no API key / no Unreal needed
+```
+
+Point it at a live editor with `--transport http --url http://127.0.0.1:8000/mcp`; agents discover the
+editor's real tools via MCP `list_tools` and filter them per specialist automatically.
+
+**Built to resist context rot.** A long tool-calling loop normally bloats and degrades the model's
+working set. The fleet defends with: per-specialist fresh conversations, a persistent markdown
+scratchpad (`memory_note`/`memory_recall`) so agents offload state instead of carrying it, compact
+step-to-step handoffs (digests, not transcripts), server-side context editing that prunes stale tool
+results, tool-result capping, prompt caching of the stable prefix, and an optional fresh-context
+verifier (`--verify`) that re-checks each step and retries gaps. Full details in
+[`Agents/README.md`](Agents/README.md).
 
 ---
 
@@ -130,7 +178,7 @@ Epic's guide: **[Unreal MCP in the Unreal Editor](https://dev.epicgames.com/docu
 
 ```bash
 cd /path/to/YourProject/Plugins
-git clone https://github.com/kevinpbuckley/4real.git
+git clone https://github.com/ZubeidHendricks/4real.git ForReal
 ```
 Build with the project script (don't run `Build.bat` directly):
 ```
@@ -228,6 +276,12 @@ engine. The authoritative, always-current references are:
   prefer skills + discovery).
 
 ---
+
+## Credits
+
+4real is a fork of **[VibeUE](https://github.com/kevinpbuckley/VibeUE)** by Kevin Buckley /
+Buckley Builds LLC (MIT), extended with its own multi-agent runtime, context-rot hardening, and
+additional editor tools. The original copyright is retained in [LICENSE](LICENSE).
 
 ## License
 
