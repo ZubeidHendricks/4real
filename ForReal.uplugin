@@ -1,0 +1,75 @@
+{
+	"FileVersion": 3,
+	"Version": 5,
+	"VersionName": "5.0",
+	"EngineVersion": "5.8.0",
+	"FriendlyName": "4real",
+	"Description": "MCP Expansion and AI Editor Toolset for Unreal Engine 5.8 — extends Unreal's native MCP server, ToolsetRegistry, and AgentSkill systems with deep editor automation. Based on VibeUE (MIT).",
+	"Category": "Editor",
+	"CreatedBy": "4real",
+	"CreatedByURL": "https://4real.dev",
+	"DocsURL": "https://4real.dev/docs",
+	"MarketplaceURL": "",
+	"FabURL": "",
+	"SupportURL": "https://4real.dev/support",
+	"CanContainContent": true,
+	"IsBetaVersion": false,
+	"IsExperimentalVersion": false,
+	"Installed": false,
+	"Modules": [
+		{
+			"Name": "ForReal",
+			"Type": "Editor",
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [
+				"Win64"
+			]
+		}
+	],
+	"Plugins": [
+		{
+			"Name": "PythonScriptPlugin",
+			"Enabled": true
+		},
+		{
+			"Name": "EditorScriptingUtilities",
+			"Enabled": true
+		},
+		{
+			"Name": "EnhancedInput",
+			"Enabled": true
+		},
+		{
+			"Name": "Niagara",
+			"Enabled": true
+		},
+		{
+			"Name": "MeshModelingToolset",
+			"Enabled": true
+		},
+		{
+			"Name": "ModelViewViewModel",
+			"Enabled": true
+		},
+		{
+			"Name": "StateTree",
+			"Enabled": true
+		},
+		{
+			"Name": "MetaSound",
+			"Enabled": true
+		},
+		{
+			"Name": "GameplayTagsEditor",
+			"Enabled": true
+		},
+		{
+			"Name": "ToolsetRegistry",
+			"Enabled": true
+		},
+		{
+			"Name": "ModelContextProtocol",
+			"Enabled": true
+		}
+	]
+} 
