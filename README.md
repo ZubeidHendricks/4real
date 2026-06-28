@@ -20,7 +20,13 @@ adds a deep **AI Editor Toolset** — a library of editor capabilities — Bluep
 gameplay tags, input, UVs, **performance/profiling**, and more — registered into the engine's own
 `ToolsetRegistry` and `ModelContextProtocol` server, plus rich domain **skills** served through
 Unreal's native `AgentSkill` system. Any MCP-capable agent (Claude Code, Cursor, Copilot, …) drives
-your editor through Unreal's standard MCP endpoint.
+your editor through Unreal's standard MCP endpoint — **or 4real's own AI agents do** (see below).
+
+> 🤖 **4real ships its own AI agents.** Unlike toolkits that depend on an external IDE agent, 4real
+> includes a multi-agent fleet — a roster of Unreal-domain specialists powered by Claude Opus 4.8,
+> coordinated by a lead orchestrator — that turns a natural-language goal into editor actions over MCP.
+> See **[`Agents/`](Agents/README.md)**. It runs in mock mode on any machine (no Unreal needed) and
+> against a live editor once the plugin is built.
 
 > ⚠️ **4real requires Unreal's native MCP to be set up first** — enable the **Unreal MCP** plugin
 > (which auto-enables **Toolset Registry**) and the **Editor Tools** plugin, then start the MCP server.

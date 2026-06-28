@@ -1,0 +1,5 @@
+# 4real agent fleet runtime
+anthropic>=0.69
+# Optional: only needed for the http/stdio MCP transports (talking to a real UE editor).
+# The default --mock transport runs without it.
+mcp>=1.2 ; python_version >= "3.10"
